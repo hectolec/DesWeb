@@ -1,0 +1,63 @@
+﻿@{
+    var username="";
+    var password1="";
+    var password2="";
+
+    Validation.RequireField("username","El campo Usuario no puede estar en blanco");
+    Validation.RequireField("password1","El campo Contraseña no puedes estar en blanco");
+    Validation.Add("password1",Validator.EqualsTo("password2","Las contraseñas no coinciden"));
+
+    if(IsPost){
+        username= Request["username"];    
+        password1 = Request["password1"];
+        password2 = Request["password2"];
+
+        if(Validation.IsValid()){
+            if(WebSecurity.UserExists(username)){
+                ModelState.AddError("username", "Ya existe un usuario con ese nombre");
+            }
+
+            if(ModelState.IsValid){
+                WebSecurity.Logout();
+                WebSecurity.CreateUserAndAccount(username,password1,null,false);
+                WebSecurity.Login(username,password1);
+                Response.Redirect("default");
+            }
+        }
+    }
+    
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <link rel="stylesheet" type="text/css" href="@Href("~/styles.css")" />
+    </head>
+    <body>
+        <h2>Registro</h2>
+        @Html.ValidationSummary()
+        
+        <form method="post">
+            <div>
+                @Html.Label("Usuario:","username")<br>
+                @Html.TextBox("username",username)
+                @Html.ValidationMessage("username")
+            </div>
+            <div>
+                @Html.Label("Contraseña:","password1")<br>
+                @Html.Password("password1",password1)
+                @Html.ValidationMessage("password1")
+            </div>
+            <div>
+                @Html.Label("Repetir contraseña:","password2")<br>
+                @Html.Password("password2",password2)
+            </div>
+            <div>
+                <input type="submit" value="Registrar">
+            </div>
+        </form>
+    </body>
+</html>

@@ -1,0 +1,57 @@
+﻿@{
+    var username="";
+    var password="";
+
+    Validation.RequireField("username","El campo Usuario no puede estar en blanco");
+    Validation.RequireField("password","El campo Contraseña no puedes estar en blanco");
+
+    if(IsPost){
+        username= Request["username"];    
+        password = Request["password"];
+        var rememberMe = Request["rememberMe"].AsBool(); 
+        
+        if(Validation.IsValid()){
+            if(WebSecurity.Login(username,password,rememberMe)){
+                if(Request.QueryString["sender"]!=null){
+                    Response.Redirect(Request.QueryString["sender"]);
+                } else {
+                    Response.Redirect("~/default");
+                }
+            } else{
+                Validation.AddFormError("No se ha podido iniciar sesion");
+            }
+
+           
+        }
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+    </head>
+    <body>
+       <form action="login?@Request.QueryString" method="post">
+            <div>
+                @Html.Label("Usuario:","username")<br>
+                @Html.TextBox("username",username)
+                @Html.ValidationMessage("username")
+            </div>
+            <div>
+                @Html.Label("Contraseña:","password")<br>
+                @Html.Password("password",password)
+                @Html.ValidationMessage("password")
+            </div>
+            <div>
+                @Html.CheckBox("rememberMe", new {ValueType="true"})
+                @Html.Label("Recordarme en este equipo","rememberMe")   
+            </div>
+            <div>
+                <input type="submit" value="Iniciar Sesión">
+            </div>
+        </form> 
+    </body>
+</html>
